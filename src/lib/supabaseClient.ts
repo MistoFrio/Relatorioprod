@@ -168,11 +168,11 @@ export const userService = {
     const cpfNumbers = cpf.replace(/\D/g, '');
     
     if (cargo === 'Ajudante') {
-      // Senha = 4 primeiros dígitos do CPF
-      return cpfNumbers.substring(0, 4);
-    } else if (cargo === 'Operador') {
       // Senha = 4 últimos dígitos do CPF
       return cpfNumbers.substring(cpfNumbers.length - 4);
+    } else if (cargo === 'Operador') {
+      // Senha = 4 primeiros dígitos do CPF
+      return cpfNumbers.substring(0, 4);
     } else {
       // Para outros cargos, usar CPF completo sem formatação
       return cpfNumbers;

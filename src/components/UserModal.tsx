@@ -278,7 +278,7 @@ export default function UserModal({ isOpen, onClose, onSave, user }: UserModalPr
               />
               {autoPassword && (
                 <p className="text-xs text-slate-500">
-                  Senha gerada baseada no cargo: {cargo === 'Ajudante' ? '4 primeiros dígitos do CPF' : cargo === 'Operador' ? '4 últimos dígitos do CPF' : 'CPF completo'}
+                  Senha gerada baseada no cargo: {cargo === 'Ajudante' ? '4 últimos dígitos do CPF' : cargo === 'Operador' ? '4 primeiros dígitos do CPF' : 'CPF completo'}
                 </p>
               )}
               {errors.senha && (
