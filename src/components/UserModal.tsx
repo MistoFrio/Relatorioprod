@@ -118,9 +118,8 @@ export default function UserModal({ isOpen, onClose, onSave, user }: UserModalPr
       newErrors.senha = 'Senha deve ter pelo menos 3 caracteres';
     }
 
-    if (!linkDestino.trim()) {
-      newErrors.linkDestino = 'Link de destino é obrigatório';
-    } else {
+    // Link de destino é opcional, mas se preenchido deve ser uma URL válida
+    if (linkDestino.trim()) {
       try {
         new URL(linkDestino);
       } catch {
@@ -289,11 +288,11 @@ export default function UserModal({ isOpen, onClose, onSave, user }: UserModalPr
               )}
             </div>
             <div className="space-y-2">
-              <Label htmlFor="modal-link">Link de Destino</Label>
+              <Label htmlFor="modal-link">Link de Destino (Opcional)</Label>
               <Input
                 id="modal-link"
                 type="url"
-                placeholder="https://exemplo.com"
+                placeholder="https://exemplo.com (opcional)"
                 value={linkDestino}
                 onChange={(e) => {
                   setLinkDestino(e.target.value);
@@ -301,11 +300,10 @@ export default function UserModal({ isOpen, onClose, onSave, user }: UserModalPr
                     setErrors(prev => ({ ...prev, linkDestino: '' }));
                   }
                 }}
-                required
                 disabled={isLoading}
               />
               <p className="text-sm text-slate-500">
-                URL para onde o usuário será redirecionado após o login
+                URL para onde o usuário será redirecionado após o login (opcional)
               </p>
               {errors.linkDestino && (
                 <Alert variant="destructive">
