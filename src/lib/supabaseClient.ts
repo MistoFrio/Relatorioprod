@@ -11,6 +11,7 @@ export interface User {
   cpf: string;
   senha: string;
   link_destino: string;
+  cargo: string;
   is_admin?: boolean;
   created_at?: string;
   updated_at?: string;
@@ -21,6 +22,7 @@ export interface UserAuth {
   nome: string;
   cpf: string;
   link_destino: string;
+  cargo: string;
   is_admin: boolean;
   created_at: string;
 }
@@ -157,6 +159,23 @@ export const userService = {
     } catch (error) {
       console.error('Erro ao verificar CPF:', error);
       return false;
+    }
+  },
+
+  // Gerar senha automática baseada no cargo
+  generatePasswordByCargo(cpf: string, cargo: string): string {
+    // Remover formatação do CPF (pontos e hífens)
+    const cpfNumbers = cpf.replace(/\D/g, '');
+    
+    if (cargo === 'Ajudante') {
+      // Senha = 4 primeiros dígitos do CPF
+      return cpfNumbers.substring(0, 4);
+    } else if (cargo === 'Operador') {
+      // Senha = 4 últimos dígitos do CPF
+      return cpfNumbers.substring(cpfNumbers.length - 4);
+    } else {
+      // Para outros cargos, usar CPF completo sem formatação
+      return cpfNumbers;
     }
   }
 };

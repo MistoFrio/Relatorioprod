@@ -196,6 +196,7 @@ export default function AdminPage() {
                   <TableRow>
                     <TableHead>Nome</TableHead>
                     <TableHead>CPF</TableHead>
+                    <TableHead>Cargo</TableHead>
                     <TableHead>Senha</TableHead>
                     <TableHead>Link de Destino</TableHead>
                     <TableHead>Tipo</TableHead>
@@ -206,14 +207,14 @@ export default function AdminPage() {
                 <TableBody>
                   {isLoading ? (
                     <TableRow>
-                      <TableCell colSpan={7} className="text-center text-slate-500 py-8">
+                      <TableCell colSpan={8} className="text-center text-slate-500 py-8">
                         <RefreshCw className="h-6 w-6 animate-spin mx-auto mb-2" />
                         Carregando usuários...
                       </TableCell>
                     </TableRow>
                   ) : users.length === 0 ? (
                     <TableRow>
-                      <TableCell colSpan={7} className="text-center text-slate-500 py-8">
+                      <TableCell colSpan={8} className="text-center text-slate-500 py-8">
                         Nenhum usuário cadastrado
                       </TableCell>
                     </TableRow>
@@ -222,6 +223,11 @@ export default function AdminPage() {
                       <TableRow key={user.id}>
                         <TableCell className="font-medium">{user.nome}</TableCell>
                         <TableCell className="font-mono text-sm">{user.cpf}</TableCell>
+                        <TableCell>
+                          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                            {user.cargo || 'Não definido'}
+                          </span>
+                        </TableCell>
                         <TableCell className="font-mono text-sm">
                           {maskPassword(user.senha)}
                         </TableCell>
