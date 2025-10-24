@@ -19,7 +19,7 @@ export default function HomePage() {
       <div className="max-w-4xl w-full">
         <div className="text-center mb-8 sm:mb-12">
           <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-slate-800 mb-4">
-            Bem-vindo ao Sistema
+            Bem-vindo
           </h1>
           <p className="text-base sm:text-lg text-slate-600">
             Escolha uma opção para continuar
