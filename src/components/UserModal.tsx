@@ -48,6 +48,13 @@ export default function UserModal({ isOpen, onClose, onSave, user }: UserModalPr
     setErrors({});
   }, [user, isOpen]);
 
+  // useEffect para gerar senha automaticamente quando CPF e cargo estiverem preenchidos
+  useEffect(() => {
+    if (!user && cargo && cpf && cpf.replace(/\D/g, '').length === 11) {
+      generateAutoPassword();
+    }
+  }, [cargo, cpf, user]);
+
   const formatCPF = (value: string) => {
     const numbers = value.replace(/\D/g, '');
     if (numbers.length <= 11) {
@@ -67,14 +74,22 @@ export default function UserModal({ isOpen, onClose, onSave, user }: UserModalPr
     if (errors.cpf) {
       setErrors(prev => ({ ...prev, cpf: '' }));
     }
+
+    // Gerar senha automática se cargo já estiver selecionado e não for edição de usuário existente
+    if (cargo && formatted.replace(/\D/g, '').length === 11 && !user) {
+      generateAutoPassword();
+    }
   };
 
   // Função para gerar senha automática baseada no cargo
   const generateAutoPassword = () => {
     if (cargo && cpf) {
-      const generatedPassword = userService.generatePasswordByCargo(cpf, cargo);
-      setSenha(generatedPassword);
-      setAutoPassword(true);
+      const cpfNumbers = cpf.replace(/\D/g, '');
+      if (cpfNumbers.length === 11) {
+        const generatedPassword = userService.generatePasswordByCargo(cpf, cargo);
+        setSenha(generatedPassword);
+        setAutoPassword(true);
+      }
     }
   };
 
