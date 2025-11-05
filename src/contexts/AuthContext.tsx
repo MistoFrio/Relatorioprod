@@ -27,18 +27,24 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // Verificar se há usuário salvo no localStorage
-    const storedUser = localStorage.getItem('currentUser');
-    if (storedUser) {
-      try {
-        const user = JSON.parse(storedUser);
-        setCurrentUser(user);
-      } catch (error) {
-        console.error('Erro ao recuperar usuário do localStorage:', error);
-        localStorage.removeItem('currentUser');
+    try {
+      const storedUser = typeof window !== 'undefined' ? window.localStorage.getItem('currentUser') : null;
+      if (storedUser) {
+        try {
+          const user = JSON.parse(storedUser);
+          setCurrentUser(user);
+        } catch (error) {
+          console.error('Erro ao parsear usuário do localStorage:', error);
+          if (typeof window !== 'undefined') {
+            window.localStorage.removeItem('currentUser');
+          }
+        }
       }
+    } catch (error) {
+      console.warn('Storage indisponível; prosseguindo sem persistência.', error);
+    } finally {
+      setIsLoading(false);
     }
-    setIsLoading(false);
   }, []);
 
   const login = async (cpf: string, senha: string): Promise<UserAuth | null> => {
@@ -53,7 +59,13 @@ export function AuthProvider({ children }: AuthProviderProps) {
       if (user) {
         console.log('AuthContext - Usuário autenticado com sucesso:', user);
         setCurrentUser(user);
-        localStorage.setItem('currentUser', JSON.stringify(user));
+        try {
+          if (typeof window !== 'undefined') {
+            window.localStorage.setItem('currentUser', JSON.stringify(user));
+          }
+        } catch (error) {
+          console.warn('Não foi possível salvar no localStorage (mobile/modo privado).', error);
+        }
         return user;
       }
       
@@ -69,7 +81,11 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
   const logout = () => {
     setCurrentUser(null);
-    localStorage.removeItem('currentUser');
+    try {
+      if (typeof window !== 'undefined') {
+        window.localStorage.removeItem('currentUser');
+      }
+    } catch {}
   };
 
   const value = {
