@@ -11,7 +11,7 @@ export default function HomePage() {
   };
 
   const handleFAQ = () => {
-    window.open('https://docs.google.com/forms', '_blank');
+    window.open('https://forms.gle/71hVVvRVKYFVrJq37', '_blank');
   };
 
   return (
