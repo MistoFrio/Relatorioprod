@@ -5,7 +5,7 @@ import { User, userService } from '@/lib/supabaseClient';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { LogOut, UserPlus, Pencil, Trash2, Shield, RefreshCw } from 'lucide-react';
+import { LogOut, UserPlus, Pencil, Trash2, Shield, RefreshCw, Download } from 'lucide-react';
 import UserModal from '@/components/UserModal';
 import LinkPreview from '@/components/LinkPreview';
 import { Alert, AlertDescription } from '@/components/ui/alert';
@@ -143,6 +143,81 @@ export default function AdminPage() {
     return '•'.repeat(password.length);
   };
 
+  const escapeCSV = (value: string | null | undefined): string => {
+    if (!value) return '';
+    // Escapar aspas duplas duplicando-as
+    const escaped = String(value).replace(/"/g, '""');
+    // Se contém vírgula, quebra de linha ou aspas, envolver em aspas
+    if (escaped.includes(',') || escaped.includes('\n') || escaped.includes('"')) {
+      return `"${escaped}"`;
+    }
+    return escaped;
+  };
+
+  const exportToCSV = () => {
+    try {
+      if (users.length === 0) {
+        toast({
+          title: 'Aviso',
+          description: 'Não há usuários para exportar.',
+          variant: 'destructive',
+        });
+        return;
+      }
+
+      // Cabeçalhos do CSV
+      const headers = ['Nome', 'CPF', 'Cargo', 'Senha', 'Link de Destino', 'Tipo', 'Data de Criação'];
+      
+      // Converter dados para CSV
+      const csvRows = [
+        headers.join(','),
+        ...users.map(user => {
+          const row = [
+            escapeCSV(user.nome),
+            escapeCSV(user.cpf),
+            escapeCSV(user.cargo || 'Não definido'),
+            escapeCSV(user.senha),
+            escapeCSV(user.link_destino),
+            escapeCSV(user.is_admin ? 'Admin' : 'Usuário'),
+            escapeCSV(user.created_at ? new Date(user.created_at).toLocaleDateString('pt-BR') : '-')
+          ];
+          return row.join(',');
+        })
+      ];
+
+      // Criar conteúdo CSV
+      const csvContent = csvRows.join('\n');
+      
+      // Criar blob e fazer download
+      const blob = new Blob(['\ufeff' + csvContent], { type: 'text/csv;charset=utf-8;' });
+      const link = document.createElement('a');
+      const url = URL.createObjectURL(blob);
+      
+      link.setAttribute('href', url);
+      link.setAttribute('download', `colaboradores_${new Date().toISOString().split('T')[0]}.csv`);
+      link.style.visibility = 'hidden';
+      
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      
+      // Limpar URL do objeto
+      setTimeout(() => URL.revokeObjectURL(url), 100);
+      
+      toast({
+        title: 'Sucesso',
+        description: 'CSV exportado com sucesso!',
+      });
+    } catch (error) {
+      console.error('Erro ao exportar CSV:', error);
+      toast({
+        title: 'Erro',
+        description: 'Não foi possível exportar o CSV.',
+        variant: 'destructive',
+      });
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-teal-50 to-cyan-50">
       <div className="container mx-auto p-6 max-w-7xl">
@@ -183,10 +258,21 @@ export default function AdminPage() {
                   Total de {users.length} usuário(s) no sistema
                 </CardDescription>
               </div>
-              <Button onClick={handleAddUser} className="bg-gradient-to-r from-teal-500 to-emerald-600 hover:from-teal-600 hover:to-emerald-700 text-white">
-                <UserPlus className="mr-2 h-4 w-4" />
-                Adicionar Usuário
-              </Button>
+              <div className="flex gap-2">
+                <Button 
+                  onClick={exportToCSV} 
+                  variant="outline"
+                  disabled={users.length === 0 || isLoading}
+                  className="border-teal-500 text-teal-700 hover:bg-teal-50"
+                >
+                  <Download className="mr-2 h-4 w-4" />
+                  Exportar CSV
+                </Button>
+                <Button onClick={handleAddUser} className="bg-gradient-to-r from-teal-500 to-emerald-600 hover:from-teal-600 hover:to-emerald-700 text-white">
+                  <UserPlus className="mr-2 h-4 w-4" />
+                  Adicionar Usuário
+                </Button>
+              </div>
             </div>
           </CardHeader>
           <CardContent>
