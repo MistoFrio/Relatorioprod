@@ -145,10 +145,12 @@ export default function AdminPage() {
 
   const escapeCSV = (value: string | null | undefined): string => {
     if (!value) return '';
+    // Converter para string e remover quebras de linha
+    const str = String(value).replace(/\r\n/g, ' ').replace(/\n/g, ' ').replace(/\r/g, ' ');
     // Escapar aspas duplas duplicando-as
-    const escaped = String(value).replace(/"/g, '""');
-    // Se contém vírgula, quebra de linha ou aspas, envolver em aspas
-    if (escaped.includes(',') || escaped.includes('\n') || escaped.includes('"')) {
+    const escaped = str.replace(/"/g, '""');
+    // Se contém ponto e vírgula, vírgula, quebra de linha ou aspas, envolver em aspas
+    if (escaped.includes(';') || escaped.includes(',') || escaped.includes('"')) {
       return `"${escaped}"`;
     }
     return escaped;
@@ -165,12 +167,15 @@ export default function AdminPage() {
         return;
       }
 
+      // Usar ponto e vírgula como separador (padrão brasileiro/português)
+      const separator = ';';
+      
       // Cabeçalhos do CSV
       const headers = ['Nome', 'CPF', 'Cargo', 'Senha', 'Link de Destino', 'Tipo', 'Data de Criação'];
       
       // Converter dados para CSV
       const csvRows = [
-        headers.join(','),
+        headers.join(separator),
         ...users.map(user => {
           const row = [
             escapeCSV(user.nome),
@@ -181,14 +186,14 @@ export default function AdminPage() {
             escapeCSV(user.is_admin ? 'Admin' : 'Usuário'),
             escapeCSV(user.created_at ? new Date(user.created_at).toLocaleDateString('pt-BR') : '-')
           ];
-          return row.join(',');
+          return row.join(separator);
         })
       ];
 
-      // Criar conteúdo CSV
-      const csvContent = csvRows.join('\n');
+      // Criar conteúdo CSV com quebra de linha Windows (CRLF)
+      const csvContent = csvRows.join('\r\n');
       
-      // Criar blob e fazer download
+      // Criar blob com BOM UTF-8 para Excel reconhecer corretamente
       const blob = new Blob(['\ufeff' + csvContent], { type: 'text/csv;charset=utf-8;' });
       const link = document.createElement('a');
       const url = URL.createObjectURL(blob);
